@@ -13,18 +13,33 @@ descendente(X,Y) :- genitor(Y,X).
 descendente(X,Y) :- genitor(Y,Z),descendente(X,Z).
 
 % B
-casados(carlos, maria).
-casados(maria,carlos).
-casados(pedro, julia).
-casados(julia, pedro).
-casados(antonio, mariana).
-casados(mariana, antonio).
+casal(joana, antonio).
+casal(joao, roberta).
+casal(pedro, mariana).
 
-solteiro(X) :- \+ casados(_, X).
-filho_unico(X) :- \+ irmao(_, X).
+% Para evitar a recursão infinita de definir fatos casados(a,b) e uma regra
+% simétrica, separa-se os fatos das regras.
+
+casados(X,Y) :- casal(X,Y) ; casal(Y,X).
+
+% Sem pessoa(X), o prolog interpreta da seguinte forma: não existe X tal que
+% casados(_, X)? Obviamente, existe tal X na base de dados, então quando a
+% consulta é solteiro(X) (o usuário provavelmente quer consultar todos os
+% solteiros), o resultado é false, pois existem casados. Ao colocar pessoa(X)
+% antes da cláusula de negação, fixamos o valor de X = a, e então \+ casados(_,
+% a) se comporta como a negação lógica.
+solteiro(X) :- pessoa(X), \+ casados(_, X).
+filho_unico(X) :- pessoa(X), \+ irmao(_, X).
 
 % C
 pessoa(mia).
+pessoa(jose).
+pessoa(joana).
+pessoa(joao).
+pessoa(maria).
+pessoa(paulo).
+pessoa(ana).
+pessoa(pedro).
 tipo_de_animal(cachorro).
 tipo_de_animal(gato).
 tipo_de_animal(tigre).
